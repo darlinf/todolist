@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import SelectDropdown from 'react-native-select-dropdown';
 
 export default function HeaderMenu({navigation}) {
   const [darkMode, setDarkMode] = React.useState(true);
@@ -55,11 +56,46 @@ export default function HeaderMenu({navigation}) {
           }>
           <Picker.Item label="Java" value="java" />
           <Picker.Item label="JavaScript" value="js" />
-        </Picker>*/}
+        </Picker>
 
             <Text style={{color: 'white', textAlign: 'center', fontSize: 16}}>
               5 May
-            </Text>
+            </Text>*/}
+            <View style={{width: 150, top: -15}}>
+              <SelectDropdown
+                renderDropdownIcon={() => {
+                  return (
+                    <Image
+                      source={require('../assets/down-arrow.png')}
+                      resizeMode="contain"
+                      style={{
+                        width: 15,
+                        height: 15,
+                        tintColor: 'white',
+                        position: 'absolute',
+                        left: 10,
+                      }}
+                    />
+                  );
+                }}
+                defaultButtonText="Default"
+                dropdownStyle={{height: 250}}
+                data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
+                onSelect={(selectedItem, index) => {
+                  console.log(selectedItem, index);
+                }}
+                buttonTextAfterSelection={(selectedItem, index) => {
+                  // text represented after item is selected
+                  // if data array is an array of objects then return selectedItem.property to render after item is selected
+                  return selectedItem;
+                }}
+                rowTextForSelection={(item, index) => {
+                  // text represented for each item in dropdown
+                  // if data array is an array of objects then return item.property to represent item in dropdown
+                  return item;
+                }}
+              />
+            </View>
             <TouchableOpacity onPress={() => setDarkMode(!darkMode)}>
               <View
                 style={{

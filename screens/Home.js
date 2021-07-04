@@ -7,8 +7,19 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Dimensions,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+
+let isOnScreenNavbar = true;
+
+let Tasks = {
+  task: '',
+  taskState: '',
+  timeStart: '',
+  timeEnd: '',
+  alartRepeat: '',
+};
 
 const task = taskState => {
   if (taskState === 'done')
@@ -291,7 +302,7 @@ const bodyContentToday = () => {
       <View style={{flexDirection: 'row'}}>
         {/*Task state done, current, still*/}
 
-        <ScrollView style={{height: 380, width: 285}}>
+        <ScrollView style={{height: isOnScreenNavbar ? 380 : 450, width: 285}}>
           {task('done')}
           {task('current')}
           {task('still')}
@@ -379,6 +390,13 @@ const bodyContentAnotherDay = () => {
 };
 
 export default function Home({navigation}) {
+  let deviceHeight = Dimensions.get('screen').height;
+  let windowHeight = Dimensions.get('window').height;
+  let bottomNavBarHeight = deviceHeight - windowHeight;
+  if (!bottomNavBarHeight > 0) {
+    isOnScreenNavbar = false;
+  }
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -390,7 +408,7 @@ export default function Home({navigation}) {
           backgroundColor: '#4044C9',
           height: 55,
           width: 55,
-          top: 448,
+          top: isOnScreenNavbar ? 448 : 495,
           left: 350,
           position: 'absolute',
           zIndex: 1,
