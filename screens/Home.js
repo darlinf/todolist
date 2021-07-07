@@ -1,5 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,9 @@ import {
   Dimensions,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+
+import HeaderMenuContext from '../context/HeaderMenu/HeaderMenuContext';
+import COLOR from '../constants/theme';
 
 let isOnScreenNavbar = true;
 
@@ -51,7 +54,7 @@ const task = taskState => {
             <View
               style={{
                 borderRadius: 5,
-                backgroundColor: '#4044C9',
+                backgroundColor: COLOR.primary,
                 height: 20,
                 width: 20,
               }}></View>
@@ -103,7 +106,7 @@ const task = taskState => {
             borderRadius: 13,
             padding: 15,
             width: 200,
-            backgroundColor: '#4044C9',
+            backgroundColor: COLOR.primary,
           }}>
           <View
             style={{
@@ -177,7 +180,7 @@ const task = taskState => {
               }}></View>
             <View
               style={{
-                backgroundColor: '#4044C9',
+                backgroundColor: COLOR.primary,
                 borderRadius: 5,
                 zIndex: 2,
                 position: 'relative',
@@ -279,7 +282,7 @@ const bodyContentToday = () => {
       <View style={{flexDirection: 'row', marginBottom: 30}}>
         <View
           style={{
-            backgroundColor: '#4044C9',
+            backgroundColor: COLOR.primary,
             marginRight: 30,
             borderRadius: 13,
             height: 70,
@@ -397,6 +400,16 @@ export default function Home({navigation}) {
     isOnScreenNavbar = false;
   }
 
+  const [show, setShow] = React.useState('');
+  const headerMenuContext = useContext(HeaderMenuContext);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      headerMenuContext.homePage();
+      console.log('sddd');
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -405,7 +418,7 @@ export default function Home({navigation}) {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#4044C9',
+          backgroundColor: COLOR.primary,
           height: 55,
           width: 55,
           top: isOnScreenNavbar ? 448 : 495,
@@ -443,14 +456,13 @@ export default function Home({navigation}) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#4044C9',
+    backgroundColor: COLOR.primary,
   },
   header: {
     height: '15%',
-    backgroundColor: '#4044C9',
+    backgroundColor: COLOR.primary,
     marginLeft: 30,
     marginRight: 30,
     paddingTop: 50,
@@ -472,4 +484,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',*/
 
-/*react-native run-android*/
+/*react-native run-android
+npx react-native run-android
+*/

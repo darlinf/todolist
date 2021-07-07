@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,14 +12,64 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SelectDropdown from 'react-native-select-dropdown';
 
+import HeaderMenuContext from '../context/HeaderMenu/HeaderMenuContext';
+
+import COLOR from '../constants/theme';
+
+const routeShow = elem => {
+  if (elem === 'home')
+    return (
+      <View style={{width: 150, top: -15}}>
+        <SelectDropdown
+          renderDropdownIcon={() => {
+            return (
+              <Image
+                source={require('../assets/down-arrow.png')}
+                resizeMode="contain"
+                style={{
+                  width: 15,
+                  height: 15,
+                  tintColor: COLOR.primary,
+                  position: 'absolute',
+                  left: 10,
+                }}
+              />
+            );
+          }}
+          defaultButtonText="Default"
+          dropdownStyle={{height: 250}}
+          data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
+          onSelect={(selectedItem, index) => {
+            console.log(selectedItem, index);
+          }}
+          buttonTextAfterSelection={(selectedItem, index) => {
+            // text represented after item is selected
+            // if data array is an array of objects then return selectedItem.property to render after item is selected
+            return selectedItem;
+          }}
+          rowTextForSelection={(item, index) => {
+            // text represented for each item in dropdown
+            // if data array is an array of objects then return item.property to represent item in dropdown
+            return item;
+          }}
+        />
+      </View>
+    );
+  if (elem === 'create note')
+    return (
+      <Text style={{color: 'white', fontSize: 24, top: -7}}>Create task</Text>
+    );
+};
+
 export default function HeaderMenu({navigation}) {
   const [darkMode, setDarkMode] = React.useState(true);
   const [selectedLanguage, setSelectedLanguage] = React.useState();
+  const headerMenuContext = useContext(HeaderMenuContext);
   return (
-    <View style={{height: 150, backgroundColor: '#4044C9'}}>
+    <View style={{height: 150, backgroundColor: COLOR.primary}}>
       <View
         style={{
-          backgroundColor: '#4044C9',
+          backgroundColor: COLOR.primary,
           paddingLeft: 30,
           paddingRight: 30,
           paddingTop: 50,
@@ -61,41 +111,7 @@ export default function HeaderMenu({navigation}) {
             <Text style={{color: 'white', textAlign: 'center', fontSize: 16}}>
               5 May
             </Text>*/}
-            <View style={{width: 150, top: -15}}>
-              <SelectDropdown
-                renderDropdownIcon={() => {
-                  return (
-                    <Image
-                      source={require('../assets/down-arrow.png')}
-                      resizeMode="contain"
-                      style={{
-                        width: 15,
-                        height: 15,
-                        tintColor: 'white',
-                        position: 'absolute',
-                        left: 10,
-                      }}
-                    />
-                  );
-                }}
-                defaultButtonText="Default"
-                dropdownStyle={{height: 250}}
-                data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
-                onSelect={(selectedItem, index) => {
-                  console.log(selectedItem, index);
-                }}
-                buttonTextAfterSelection={(selectedItem, index) => {
-                  // text represented after item is selected
-                  // if data array is an array of objects then return selectedItem.property to render after item is selected
-                  return selectedItem;
-                }}
-                rowTextForSelection={(item, index) => {
-                  // text represented for each item in dropdown
-                  // if data array is an array of objects then return item.property to represent item in dropdown
-                  return item;
-                }}
-              />
-            </View>
+            {routeShow(headerMenuContext.HeaderMenuShow)}
             <TouchableOpacity onPress={() => setDarkMode(!darkMode)}>
               <View
                 style={{
@@ -143,11 +159,11 @@ export default function HeaderMenu({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#4044C9',
+    backgroundColor: COLOR.primary,
   },
   header: {
     height: '15%',
-    backgroundColor: '#4044C9',
+    backgroundColor: COLOR.primary,
     paddingLeft: 30,
     paddingRight: 30,
     paddingTop: 50,
@@ -258,7 +274,7 @@ const headerMenu = navigation => {
               }}
               onPress={() => console.log(navigation.navigate('CreateTask'))}>
               <Text
-                style={{color: '#4044C9', fontWeight: 'bold', fontSize: 16}}>
+                style={{color: COLOR.primary, fontWeight: 'bold', fontSize: 16}}>
                 Add New
               </Text>
             </TouchableOpacity>

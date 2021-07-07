@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,8 +10,13 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SelectDropdown from 'react-native-select-dropdown';
+
+import HeaderMenuContext from '../context/HeaderMenu/HeaderMenuContext';
+
+import COLOR from '../constants/theme';
 
 let isOnScreenNavbar = true;
 
@@ -23,6 +28,15 @@ export default function CreateTask({navigation}) {
     isOnScreenNavbar = false;
   }
 
+  const headerMenuContext = useContext(HeaderMenuContext);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('ddddfgfff2');
+      headerMenuContext.createNotePage();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const [date, setDate] = useState(new Date(1598051730000));
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
@@ -31,8 +45,6 @@ export default function CreateTask({navigation}) {
 
   const [dateT, setDateT] = useState(null);
   const [time, setTime] = useState(null);
-
-  const countries = ['Default', 'Personal', 'Shopping', 'Wishlist', 'Word'];
 
   const popUpEnable = () => {
     setShowPopUp(true);
@@ -48,8 +60,14 @@ export default function CreateTask({navigation}) {
     setShow(Platform.OS === 'ios');
     setDate(currentDate);
     console.log(mode);
-    if (mode === 'time') setTime(date.toString().slice(16, 24));
-    if (mode === 'date') setDateT(date.toString().slice(0, 16));
+    if (mode === 'time') {
+      setTime(date.toString().slice(16, 24));
+      handleChangeText(time, 'timeStart');
+    }
+    if (mode === 'date') {
+      setDateT(date.toString().slice(0, 16));
+      handleChangeText(dateT, 'date');
+    }
   };
 
   const showMode = currentMode => {
@@ -65,6 +83,26 @@ export default function CreateTask({navigation}) {
     showMode('time');
   };
 
+  const initalState = {
+    task: '',
+    taskState: '',
+    timeStart: '',
+    timeEnd: '',
+    alartRepeat: '',
+    typeTask: '',
+    date: '',
+  };
+
+  const [state, setState] = useState(initalState);
+  const handleChangeText = (value, name) => {
+    setState({...state, [name]: value});
+  };
+  const saveNewTask = () => {
+    //handleChangeText('time', 'timeStart');
+    // handleChangeText('timeEnd', 'timeEnd');
+    console.log({...state});
+  };
+
   return (
     <View
       style={{
@@ -74,6 +112,15 @@ export default function CreateTask({navigation}) {
         height: '100%',
         width: '100%',
       }}>
+      {/** 
+      <Text>{state.task + ' : ' + 'task'}</Text>
+      <Text>{state.taskState + ' : ' + 'taskState'}</Text>
+      <Text>{state.timeStart + ' : ' + 'timeStart'}</Text>
+      <Text>{state.timeEnd + ' : ' + 'timeEnd'}</Text>
+      <Text>{state.alartRepeat + ' : ' + 'alartRepeat'}</Text>
+      <Text>{state.typeTask + ' : ' + 'typeTask'}</Text>
+      <Text>{state.date + ' : ' + 'date'}</Text>
+*/}
       {showPopUp && (
         <View
           style={{
@@ -120,7 +167,7 @@ export default function CreateTask({navigation}) {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#4044C9',
+          backgroundColor: COLOR.primary,
           height: 55,
           width: 55,
           top: isOnScreenNavbar ? 448 : 495,
@@ -128,7 +175,10 @@ export default function CreateTask({navigation}) {
           position: 'absolute',
           zIndex: 1,
         }}
-        onPress={popUpEnable}>
+        onPress={() => {
+          popUpEnable();
+          saveNewTask();
+        }}>
         <Image
           source={require('../assets/floppy-disk.png')}
           resizeMode="contain"
@@ -145,12 +195,13 @@ export default function CreateTask({navigation}) {
         <TextInput
           style={{
             borderRadius: 13,
-            backgroundColor: '#bebebe',
+            backgroundColor: COLOR.secondary,
             color: 'black',
             fontSize: 20,
             height: 50,
             marginBottom: 20,
           }}
+          onChangeText={value => handleChangeText(value, 'task')}
         />
       </View>
       {/*date picker*/}
@@ -161,11 +212,17 @@ export default function CreateTask({navigation}) {
             marginBottom: 20,
             flexDirection: 'row-reverse',
           }}>
-          <TouchableOpacity style={{flex: 1}} onPress={showDatepicker}>
+          <TouchableOpacity
+            style={{flex: 1}}
+            onPress={() => {
+              showDatepicker();
+              handleChangeText('still', 'taskState');
+              console.log('dfasf');
+            }}>
             <View
               style={{
                 height: 50,
-                backgroundColor: '#bebebe',
+                backgroundColor: COLOR.secondary,
                 borderRadius: 13,
                 justifyContent: 'space-between',
                 flexDirection: 'row',
@@ -179,7 +236,7 @@ export default function CreateTask({navigation}) {
                 style={{
                   width: 30,
                   height: 30,
-                  tintColor: 'white',
+                  tintColor: COLOR.primary,
                 }}
               />
             </View>
@@ -193,7 +250,7 @@ export default function CreateTask({navigation}) {
               <View
                 style={{
                   height: 50,
-                  backgroundColor: '#bebebe',
+                  backgroundColor: COLOR.secondary,
                   borderRadius: 13,
                   width: 50,
                   justifyContent: 'center',
@@ -203,9 +260,9 @@ export default function CreateTask({navigation}) {
                   source={require('../assets/close.png')}
                   resizeMode="contain"
                   style={{
-                    width: 30,
-                    height: 30,
-                    tintColor: 'white',
+                    width: 25,
+                    height: 25,
+                    tintColor: COLOR.primary,
                   }}
                 />
               </View>
@@ -225,7 +282,7 @@ export default function CreateTask({navigation}) {
                 <TextInput
                   style={{
                     borderRadius: 13,
-                    backgroundColor: '#bebebe',
+                    backgroundColor: COLOR.secondary,
                     color: 'black',
                     fontSize: 20,
                     height: 50,
@@ -233,14 +290,14 @@ export default function CreateTask({navigation}) {
                     marginLeft: 5,
                     textAlign: 'center',
                   }}
-                  value="45"
+                  onChangeText={value => handleChangeText(value, 'timeEnd')}
                 />
               )}
               <TouchableOpacity style={{flex: 1}} onPress={showTimepicker}>
                 <View
                   style={{
                     height: 50,
-                    backgroundColor: '#bebebe',
+                    backgroundColor: COLOR.secondary,
                     borderRadius: 13,
                     justifyContent: 'space-between',
                     flexDirection: 'row',
@@ -254,7 +311,7 @@ export default function CreateTask({navigation}) {
                     style={{
                       width: 30,
                       height: 30,
-                      tintColor: 'white',
+                      tintColor: COLOR.primary,
                     }}
                   />
                 </View>
@@ -268,7 +325,7 @@ export default function CreateTask({navigation}) {
                   <View
                     style={{
                       height: 50,
-                      backgroundColor: '#bebebe',
+                      backgroundColor: COLOR.secondary,
                       borderRadius: 13,
                       width: 50,
                       justifyContent: 'center',
@@ -278,9 +335,9 @@ export default function CreateTask({navigation}) {
                       source={require('../assets/close.png')}
                       resizeMode="contain"
                       style={{
-                        width: 30,
-                        height: 30,
-                        tintColor: 'white',
+                        width: 25,
+                        height: 25,
+                        tintColor: COLOR.primary,
                       }}
                     />
                   </View>
@@ -314,7 +371,7 @@ export default function CreateTask({navigation}) {
                   style={{
                     width: 15,
                     height: 15,
-                    tintColor: 'white',
+                    tintColor: COLOR.primary,
                     position: 'absolute',
                     left: 10,
                   }}
@@ -333,7 +390,7 @@ export default function CreateTask({navigation}) {
               'Other...',
             ]}
             onSelect={(selectedItem, index) => {
-              console.log(selectedItem, index);
+              handleChangeText(selectedItem, 'alartRepeat');
             }}
             buttonTextAfterSelection={(selectedItem, index) => {
               // text represented after item is selected
@@ -359,7 +416,7 @@ export default function CreateTask({navigation}) {
                 style={{
                   width: 15,
                   height: 15,
-                  tintColor: 'white',
+                  tintColor: COLOR.primary,
                   position: 'absolute',
                   left: 10,
                 }}
@@ -370,7 +427,7 @@ export default function CreateTask({navigation}) {
           dropdownStyle={{height: 250}}
           data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
           onSelect={(selectedItem, index) => {
-            console.log(selectedItem, index);
+            handleChangeText(selectedItem, 'typeTask');
           }}
           buttonTextAfterSelection={(selectedItem, index) => {
             // text represented after item is selected
