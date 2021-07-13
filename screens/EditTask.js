@@ -20,7 +20,7 @@ import db from '../database/db';
 
 let isOnScreenNavbar = true;
 
-export default function CreateTask({navigation}) {
+export default function EditTask({route, navigation}) {
   let deviceHeight = Dimensions.get('screen').height;
   let windowHeight = Dimensions.get('window').height;
   let bottomNavBarHeight = deviceHeight - windowHeight;
@@ -31,8 +31,9 @@ export default function CreateTask({navigation}) {
   const headerMenuContext = useContext(HeaderMenuContext);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      console.log('ddddfgfff2');
-      headerMenuContext.createNotePage();
+      headerMenuContext.editNotePage();
+      console.log('dddddddddddddddd');
+      console.log(route.params);
     });
     return unsubscribe;
   }, [navigation]);
@@ -87,7 +88,7 @@ export default function CreateTask({navigation}) {
     task: '',
     taskState: '',
     timeStart: '',
-    timeEnd: '45',
+    timeEnd: '',
     alartRepeat: '',
     typeTask: '',
     date: '',
@@ -182,7 +183,7 @@ export default function CreateTask({navigation}) {
           saveNewTask();
         }}>
         <Image
-          source={require('../assets/floppy-disk.png')}
+          source={require('../assets/check.png')}
           resizeMode="contain"
           style={{
             width: 30,
@@ -203,6 +204,7 @@ export default function CreateTask({navigation}) {
             height: 50,
             marginBottom: 20,
           }}
+          value={state.task}
           onChangeText={value => handleChangeText(value, 'task')}
         />
       </View>
@@ -282,7 +284,6 @@ export default function CreateTask({navigation}) {
               }}>
               {time && (
                 <TextInput
-                  keyboardType="numeric"
                   style={{
                     borderRadius: 13,
                     backgroundColor: COLOR.secondary,
@@ -293,7 +294,6 @@ export default function CreateTask({navigation}) {
                     marginLeft: 5,
                     textAlign: 'center',
                   }}
-                  value={state.timeEnd}
                   onChangeText={value => handleChangeText(value, 'timeEnd')}
                 />
               )}

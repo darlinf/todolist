@@ -116,6 +116,7 @@ import {StyleSheet, Text, View, StatusBar} from 'react-native';
 import Home from './screens/Home';
 import CreateTask from './screens/CreateTask';
 import Contact from './screens/Contact';
+import EditTask from './screens/EditTask';
 
 //import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -140,6 +141,7 @@ export default function App() {
           <Drawer.Screen name="Home" component={Home} />
           <Drawer.Screen name="CreateTask" component={CreateTask} />
           <Drawer.Screen name="Contact" component={Contact} />
+          <Drawer.Screen name="EditTask" component={EditTask} />
         </Drawer.Navigator>
         {/*
       <Stack.Navigator

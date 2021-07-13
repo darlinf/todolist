@@ -14,6 +14,8 @@ target 'todolist' do
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+  pod 'RNSqlite2', :path => '../node_modules/react-native-sqlite-2'
+
   target 'todolistTests' do
     inherit! :complete
     # Pods for testing

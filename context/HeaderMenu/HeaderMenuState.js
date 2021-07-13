@@ -4,14 +4,24 @@ import React, {useReducer} from 'react';
 import HeaderMenuContext from './HeaderMenuContext';
 import HeaderMenuReducer from './HeaderMenuReducer';
 
-import {HOME_PAGE, CREATE_NOTE_PAGE} from '../types';
+import {
+  HOME_PAGE,
+  CREATE_NOTE_PAGE,
+  EDIT_NOTE_PAGE,
+  FILTER_BY_TYPE,
+} from '../types';
 
 const HeaderMenuState = props => {
   const initialState = {
     HeaderMenuShow: null,
+    taskType: null,
   };
 
   const [state, dispatch] = useReducer(HeaderMenuReducer, initialState);
+
+  const filterTaskByType = params => {
+    dispatch({type: FILTER_BY_TYPE, payload: params});
+  };
 
   const homePage = () => {
     let element = 'home';
@@ -23,12 +33,20 @@ const HeaderMenuState = props => {
     dispatch({type: CREATE_NOTE_PAGE, payload: element});
   };
 
+  const editNotePage = () => {
+    let element = 'edit note';
+    dispatch({type: EDIT_NOTE_PAGE, payload: element});
+  };
+
   return (
     <HeaderMenuContext.Provider
       value={{
         HeaderMenuShow: state.HeaderMenuShow,
+        taskType: state.taskType,
         homePage,
         createNotePage,
+        editNotePage,
+        filterTaskByType,
       }}>
       {props.children}
     </HeaderMenuContext.Provider>
