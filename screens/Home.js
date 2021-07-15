@@ -1,5 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,6 +15,8 @@ import {LinearProgress} from 'react-native-elements';
 
 import HeaderMenuContext from '../context/HeaderMenu/HeaderMenuContext';
 import COLOR from '../constants/theme';
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+import SelectDropdown from 'react-native-select-dropdown';
 
 let isOnScreenNavbar = true;
 
@@ -61,24 +63,15 @@ export default function Home({navigation}) {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       headerMenuContext.homePage();
-      console.log('sddd');
-
       setLoading(true);
       db.getTasks(elems => {
         setTasks(elems);
         setLoading(false);
-        console.log(tasks);
+        headerMenuContext.filterTaskByType('Default');
       });
     });
     return unsubscribe;
   }, [navigation]);
-
-  /*
-  useEffect(() => {
-    db.getTasks(elems => {
-      setTasks(elems);
-    });
-  }, []);*/
 
   const months = {
     1: 'January',
@@ -99,6 +92,11 @@ export default function Home({navigation}) {
   const currentMonths = months[
     parseInt(String(today.getMonth() + 1).padStart(2, '0'))
   ].slice(0, 3); //January is 0!
+
+  const menu = useRef();
+  const hideMenu = () => menu.current.hide();
+  const showMenu = () => menu.current.show();
+  const [darkMode, setDarkMode] = React.useState(true);
 
   const task = () => {
     return tasks.map(elem => {
@@ -236,7 +234,7 @@ export default function Home({navigation}) {
               <View>
                 <Text style={{color: 'white'}}>{elem.task}</Text>
                 <Text style={{color: '#E3E3E3', opacity: 0.8}}>
-                  10:30 - 11:00
+                  10:30 - 11:00, {elem.typeTask}
                 </Text>
               </View>
             </View>
@@ -316,7 +314,9 @@ export default function Home({navigation}) {
                   <Text style={{color: 'black', fontWeight: 'bold'}}>
                     {elem.task}
                   </Text>
-                  <Text style={{color: '#C6C6C1'}}>10:30 - 11:00</Text>
+                  <Text style={{color: '#C6C6C1'}}>
+                    10:30 - 11:00, {elem.typeTask}
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -462,7 +462,7 @@ export default function Home({navigation}) {
                 <View>
                   <Text style={{color: 'white'}}>{elem.task}</Text>
                   <Text style={{color: '#E3E3E3', opacity: 0.8}}>
-                    10:30 - 11:00
+                    10:30 - 11:00, {elem.typeTask}
                   </Text>
                 </View>
               </View>
@@ -542,7 +542,9 @@ export default function Home({navigation}) {
                     <Text style={{color: 'black', fontWeight: 'bold'}}>
                       {elem.task}
                     </Text>
-                    <Text style={{color: '#C6C6C1'}}>10:30 - 11:00</Text>
+                    <Text style={{color: '#C6C6C1'}}>
+                      10:30 - 11:00, {elem.typeTask}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -581,8 +583,8 @@ export default function Home({navigation}) {
                   console.log(elem.timeEnd);
                   return parseInt(elem.timeEnd);
                 }
-              })*/}
-              {headerMenuContext.taskType} 8 hours a day
+              }){headerMenuContext.taskType}*/}
+              8 hours a day
             </Text>
           </View>
         </View>
@@ -595,7 +597,7 @@ export default function Home({navigation}) {
             />
           )}
           <ScrollView
-            style={{height: isOnScreenNavbar ? 380 : 450, width: 285}}>
+            style={{height: isOnScreenNavbar ? 400 : 600, width: 285}}>
             {headerMenuContext.taskType === 'Default' && task()}
             {headerMenuContext.taskType !== 'Default' && filterTask()}
 
@@ -684,8 +686,153 @@ export default function Home({navigation}) {
     );
   };
 
+  const headerMenu = () => {
+    return (
+      <View style={{height: 150, backgroundColor: COLOR.primary}}>
+        <View
+          style={{
+            backgroundColor: COLOR.primary,
+            paddingLeft: 30,
+            paddingRight: 30,
+            paddingTop: 50,
+            height: '65%',
+          }}>
+          <View>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View>
+                <Menu
+                  ref={menu}
+                  button={
+                    <TouchableOpacity
+                      onPress={() => {
+                        showMenu();
+                      }}>
+                      <View
+                        style={{
+                          width: 16,
+                          height: 16,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Image
+                          source={require('../assets/menu.png')}
+                          resizeMode="contain"
+                          style={{
+                            width: 30,
+                            height: 30,
+                            tintColor: 'white',
+                          }}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  }>
+                  <MenuItem onPress={hideMenu}>Themes</MenuItem>
+                  <MenuItem onPress={hideMenu}>Remove Ads</MenuItem>
+                  <MenuItem onPress={hideMenu} disabled>
+                    Menu item 3
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
+                </Menu>
+              </View>
+
+              {/*<Picker
+          selectedValue={selectedLanguage}
+          onValueChange={(itemValue, itemIndex) =>
+            setSelectedLanguage(itemValue)
+          }>
+          <Picker.Item label="Java" value="java" />
+          <Picker.Item label="JavaScript" value="js" />
+        </Picker>
+
+            <Text style={{color: 'white', textAlign: 'center', fontSize: 16}}>
+              5 May
+            </Text>*/}
+              <View style={{width: 150, top: -15}}>
+                <SelectDropdown
+                  renderDropdownIcon={() => {
+                    return (
+                      <Image
+                        source={require('../assets/down-arrow.png')}
+                        resizeMode="contain"
+                        style={{
+                          width: 15,
+                          height: 15,
+                          tintColor: COLOR.primary,
+                          position: 'absolute',
+                          left: 10,
+                        }}
+                      />
+                    );
+                  }}
+                  defaultButtonText="Default"
+                  dropdownStyle={{height: 250, borderRadius: 5}}
+                  data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
+                  onSelect={(selectedItem, index) => {
+                    console.log(selectedItem, index);
+                    headerMenuContext.filterTaskByType(selectedItem);
+                  }}
+                  buttonTextAfterSelection={(selectedItem, index) => {
+                    // text represented after item is selected
+                    // if data array is an array of objects then return selectedItem.property to render after item is selected
+                    return selectedItem;
+                  }}
+                  rowTextForSelection={(item, index) => {
+                    // text represented for each item in dropdown
+                    // if data array is an array of objects then return item.property to represent item in dropdown
+                    return item;
+                  }}
+                />
+              </View>
+              <TouchableOpacity onPress={() => setDarkMode(!darkMode)}>
+                <View
+                  style={{
+                    width: 16,
+                    height: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  {!darkMode && (
+                    <Image
+                      source={require('../assets/dark-mode.png')}
+                      resizeMode="contain"
+                      style={{
+                        width: 30,
+                        height: 30,
+                        tintColor: 'white',
+                      }}
+                    />
+                  )}
+                  {darkMode && (
+                    <Image
+                      source={require('../assets/day-mode.png')}
+                      resizeMode="contain"
+                      style={{
+                        width: 30,
+                        height: 30,
+                        tintColor: 'white',
+                      }}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        <View
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderTopStartRadius: 50,
+            height: '35%',
+          }}></View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
+      {headerMenu()}
       <TouchableOpacity
         style={{
           borderRadius: 15,
@@ -695,7 +842,7 @@ export default function Home({navigation}) {
           backgroundColor: COLOR.primary,
           height: 55,
           width: 55,
-          top: isOnScreenNavbar ? 448 : 495,
+          top: isOnScreenNavbar ? 598 : 645,
           left: 350,
           position: 'absolute',
           zIndex: 1,
@@ -719,10 +866,10 @@ export default function Home({navigation}) {
               showsHorizontalScrollIndicator={false}
               horizontal={true}>
               {bodyContentToday()}
+              {/*{bodyContentAnotherDay()}
               {bodyContentAnotherDay()}
               {bodyContentAnotherDay()}
-              {bodyContentAnotherDay()}
-              {bodyContentAnotherDay()}
+              {bodyContentAnotherDay()}*/}
             </ScrollView>
           </View>
         </View>

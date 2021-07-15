@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,10 +16,18 @@ import HeaderMenuContext from '../context/HeaderMenu/HeaderMenuContext';
 
 import COLOR from '../constants/theme';
 
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+
 export default function HeaderMenu({navigation}) {
   const [darkMode, setDarkMode] = React.useState(true);
   const [selectedLanguage, setSelectedLanguage] = React.useState();
   const headerMenuContext = useContext(HeaderMenuContext);
+
+  const [visible, setVisible] = React.useState(false);
+
+  const menu = useRef();
+  const hideMenu = () => menu.current.hide();
+  const showMenu = () => menu.current.show();
 
   const routeShow = elem => {
     if (elem === 'home')
@@ -83,28 +91,43 @@ export default function HeaderMenu({navigation}) {
         }}>
         <View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.openDrawer();
-              }}>
-              <View
-                style={{
-                  width: 16,
-                  height: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Image
-                  source={require('../assets/menu.png')}
-                  resizeMode="contain"
-                  style={{
-                    width: 30,
-                    height: 30,
-                    tintColor: 'white',
-                  }}
-                />
-              </View>
-            </TouchableOpacity>
+            <View>
+              <Menu
+                ref={menu}
+                button={
+                  <TouchableOpacity
+                    onPress={() => {
+                      showMenu();
+                    }}>
+                    <View
+                      style={{
+                        width: 16,
+                        height: 16,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <Image
+                        source={require('../assets/menu.png')}
+                        resizeMode="contain"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          tintColor: 'white',
+                        }}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                }>
+                <MenuItem onPress={hideMenu}>Themes</MenuItem>
+                <MenuItem onPress={hideMenu}>Remove Ads</MenuItem>
+                <MenuItem onPress={hideMenu} disabled>
+                  Menu item 3
+                </MenuItem>
+                <MenuDivider />
+                <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
+              </Menu>
+            </View>
+
             {/*<Picker
           selectedValue={selectedLanguage}
           onValueChange={(itemValue, itemIndex) =>

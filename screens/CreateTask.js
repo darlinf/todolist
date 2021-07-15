@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,13 +10,16 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import HeaderMenu from '../component/HeaderMenu';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-import SelectDropdown from 'react-native-select-dropdown';
 
 import HeaderMenuContext from '../context/HeaderMenu/HeaderMenuContext';
 import COLOR from '../constants/theme';
 import db from '../database/db';
+
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+import SelectDropdown from 'react-native-select-dropdown';
 
 let isOnScreenNavbar = true;
 
@@ -105,16 +108,135 @@ export default function CreateTask({navigation}) {
     db.getTasks();
   };
 
+  const menu = useRef();
+  const hideMenu = () => menu.current.hide();
+  const showMenu = () => menu.current.show();
+  const [darkMode, setDarkMode] = React.useState(true);
+
+  const headerMenu = () => {
+    return (
+      <View style={{height: 150, backgroundColor: COLOR.primary}}>
+        <View
+          style={{
+            backgroundColor: COLOR.primary,
+            paddingLeft: 30,
+            paddingRight: 30,
+            paddingTop: 50,
+            height: '65%',
+          }}>
+          <View>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View>
+                <Menu
+                  ref={menu}
+                  button={
+                    <TouchableOpacity
+                      onPress={() => {
+                        showMenu();
+                      }}>
+                      <View
+                        style={{
+                          width: 16,
+                          height: 16,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Image
+                          source={require('../assets/menu.png')}
+                          resizeMode="contain"
+                          style={{
+                            width: 30,
+                            height: 30,
+                            tintColor: 'white',
+                          }}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  }>
+                  <MenuItem onPress={hideMenu}>Menu item 1</MenuItem>
+                  <MenuItem onPress={hideMenu}>Menu item 2</MenuItem>
+                  <MenuItem onPress={hideMenu} disabled>
+                    Menu item 3
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
+                </Menu>
+              </View>
+
+              {/*<Picker
+          selectedValue={selectedLanguage}
+          onValueChange={(itemValue, itemIndex) =>
+            setSelectedLanguage(itemValue)
+          }>
+          <Picker.Item label="Java" value="java" />
+          <Picker.Item label="JavaScript" value="js" />
+        </Picker>
+
+            <Text style={{color: 'white', textAlign: 'center', fontSize: 16}}>
+              5 May
+            </Text>*/}
+              <Text style={{color: 'white', fontSize: 24, top: -7}}>
+                Create task
+              </Text>
+
+              <TouchableOpacity onPress={() => setDarkMode(!darkMode)}>
+                <View
+                  style={{
+                    width: 16,
+                    height: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  {!darkMode && (
+                    <Image
+                      source={require('../assets/dark-mode.png')}
+                      resizeMode="contain"
+                      style={{
+                        width: 30,
+                        height: 30,
+                        tintColor: 'white',
+                      }}
+                    />
+                  )}
+                  {darkMode && (
+                    <Image
+                      source={require('../assets/day-mode.png')}
+                      resizeMode="contain"
+                      style={{
+                        width: 30,
+                        height: 30,
+                        tintColor: 'white',
+                      }}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        <View
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderTopStartRadius: 50,
+            height: '35%',
+          }}></View>
+      </View>
+    );
+  };
+
   return (
-    <View
-      style={{
-        paddingLeft: 30,
-        paddingRight: 30,
-        backgroundColor: '#FFFFFF',
-        height: '100%',
-        width: '100%',
-      }}>
-      {/** 
+    <View>
+      {headerMenu()}
+      <View
+        style={{
+          paddingLeft: 30,
+          paddingRight: 30,
+          backgroundColor: '#FFFFFF',
+          height: '100%',
+          width: '100%',
+        }}>
+        {/** 
       <Text>{state.task + ' : ' + 'task'}</Text>
       <Text>{state.taskState + ' : ' + 'taskState'}</Text>
       <Text>{state.timeStart + ' : ' + 'timeStart'}</Text>
@@ -123,249 +245,294 @@ export default function CreateTask({navigation}) {
       <Text>{state.typeTask + ' : ' + 'typeTask'}</Text>
       <Text>{state.date + ' : ' + 'date'}</Text>
 */}
-      {showPopUp && (
-        <View
-          style={{
-            width: '80%',
-            height: 50,
-            backgroundColor: '#EBF7EE',
-            position: 'absolute',
-            top: isOnScreenNavbar ? 450 : 497,
-            left: 49,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: '#c0ebcb',
-          }}>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: 'black',
-              lineHeight: 50,
-              fontSize: 20,
-            }}>
-            Task created
-          </Text>
+        {showPopUp && (
           <View
             style={{
-              height: 20,
-              width: 20,
+              width: '80%',
+              height: 50,
               backgroundColor: '#EBF7EE',
               position: 'absolute',
-              top: 14,
-              left: 267,
-              transform: [{rotate: '45deg'}],
-              borderTopRightRadius: 2,
+              top: isOnScreenNavbar ? 450 : 497,
+              left: 49,
+              borderRadius: 20,
               borderWidth: 1,
               borderColor: '#c0ebcb',
-              borderBottomWidth: 0,
-              borderLeftWidth: 0,
-            }}></View>
-        </View>
-      )}
-
-      <TouchableOpacity
-        style={{
-          borderRadius: 15,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: COLOR.primary,
-          height: 55,
-          width: 55,
-          top: isOnScreenNavbar ? 448 : 495,
-          left: 350,
-          position: 'absolute',
-          zIndex: 1,
-        }}
-        onPress={() => {
-          popUpEnable();
-          saveNewTask();
-        }}>
-        <Image
-          source={require('../assets/floppy-disk.png')}
-          resizeMode="contain"
-          style={{
-            width: 30,
-            height: 30,
-            tintColor: 'white',
-          }}
-        />
-      </TouchableOpacity>
-      {/*<Text style={{textAlign: 'center', fontSize: 20}}>Create Task</Text> */}
-      <View>
-        <Text>What is to be done?</Text>
-        <TextInput
-          style={{
-            borderRadius: 13,
-            backgroundColor: COLOR.secondary,
-            color: 'black',
-            fontSize: 20,
-            height: 50,
-            marginBottom: 20,
-          }}
-          onChangeText={value => handleChangeText(value, 'task')}
-        />
-      </View>
-      {/*date picker*/}
-      <View>
-        <Text>Date picker</Text>
-        <View
-          style={{
-            marginBottom: 20,
-            flexDirection: 'row-reverse',
-          }}>
-          <TouchableOpacity
-            style={{flex: 1}}
-            onPress={() => {
-              showDatepicker();
-              handleChangeText('still', 'taskState');
-              console.log('dfasf');
             }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: 'black',
+                lineHeight: 50,
+                fontSize: 20,
+              }}>
+              Task created
+            </Text>
             <View
               style={{
-                height: 50,
-                backgroundColor: COLOR.secondary,
-                borderRadius: 13,
-                justifyContent: 'space-between',
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: 10,
-              }}>
-              <Text style={{fontSize: 20}}> {dateT}</Text>
-              <Image
-                source={require('../assets/calendar.png')}
-                resizeMode="contain"
-                style={{
-                  width: 30,
-                  height: 30,
-                  tintColor: COLOR.primary,
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-          {dateT && (
+                height: 20,
+                width: 20,
+                backgroundColor: '#EBF7EE',
+                position: 'absolute',
+                top: 14,
+                left: 267,
+                transform: [{rotate: '45deg'}],
+                borderTopRightRadius: 2,
+                borderWidth: 1,
+                borderColor: '#c0ebcb',
+                borderBottomWidth: 0,
+                borderLeftWidth: 0,
+              }}></View>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={{
+            borderRadius: 15,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: COLOR.primary,
+            height: 55,
+            width: 55,
+            top: isOnScreenNavbar ? 448 : 495,
+            left: 350,
+            position: 'absolute',
+            zIndex: 1,
+          }}
+          onPress={() => {
+            popUpEnable();
+            saveNewTask();
+          }}>
+          <Image
+            source={require('../assets/floppy-disk.png')}
+            resizeMode="contain"
+            style={{
+              width: 30,
+              height: 30,
+              tintColor: 'white',
+            }}
+          />
+        </TouchableOpacity>
+        {/*<Text style={{textAlign: 'center', fontSize: 20}}>Create Task</Text> */}
+        <View>
+          <Text>What is to be done?</Text>
+          <TextInput
+            style={{
+              borderRadius: 13,
+              backgroundColor: COLOR.secondary,
+              color: 'black',
+              fontSize: 20,
+              height: 50,
+              marginBottom: 20,
+            }}
+            onChangeText={value => handleChangeText(value, 'task')}
+          />
+        </View>
+        {/*date picker*/}
+        <View>
+          <Text>Date picker</Text>
+          <View
+            style={{
+              marginBottom: 20,
+              flexDirection: 'row-reverse',
+            }}>
             <TouchableOpacity
-              style={{marginRight: 5}}
+              style={{flex: 1}}
               onPress={() => {
-                setDateT(null);
+                showDatepicker();
+                handleChangeText('still', 'taskState');
+                console.log('dfasf');
               }}>
               <View
                 style={{
                   height: 50,
                   backgroundColor: COLOR.secondary,
                   borderRadius: 13,
-                  width: 50,
-                  justifyContent: 'center',
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
                   alignItems: 'center',
+                  padding: 10,
                 }}>
+                <Text style={{fontSize: 20}}> {dateT}</Text>
                 <Image
-                  source={require('../assets/close.png')}
+                  source={require('../assets/calendar.png')}
                   resizeMode="contain"
                   style={{
-                    width: 25,
-                    height: 25,
+                    width: 30,
+                    height: 30,
                     tintColor: COLOR.primary,
                   }}
                 />
               </View>
             </TouchableOpacity>
-          )}
-        </View>
-        {/*Time picker*/}
-        {dateT && (
-          <View>
-            <Text>Time picker</Text>
-            <View
-              style={{
-                marginBottom: 20,
-                flexDirection: 'row-reverse',
-              }}>
-              {time && (
-                <TextInput
-                  keyboardType="numeric"
-                  style={{
-                    borderRadius: 13,
-                    backgroundColor: COLOR.secondary,
-                    color: 'black',
-                    fontSize: 20,
-                    height: 50,
-                    width: 50,
-                    marginLeft: 5,
-                    textAlign: 'center',
-                  }}
-                  value={state.timeEnd}
-                  onChangeText={value => handleChangeText(value, 'timeEnd')}
-                />
-              )}
-              <TouchableOpacity style={{flex: 1}} onPress={showTimepicker}>
+            {dateT && (
+              <TouchableOpacity
+                style={{marginRight: 5}}
+                onPress={() => {
+                  setDateT(null);
+                }}>
                 <View
                   style={{
                     height: 50,
                     backgroundColor: COLOR.secondary,
                     borderRadius: 13,
-                    justifyContent: 'space-between',
-                    flexDirection: 'row',
+                    width: 50,
+                    justifyContent: 'center',
                     alignItems: 'center',
-                    padding: 10,
                   }}>
-                  <Text style={{fontSize: 20}}>{time}</Text>
                   <Image
-                    source={require('../assets/wall-clock.png')}
+                    source={require('../assets/close.png')}
                     resizeMode="contain"
                     style={{
-                      width: 30,
-                      height: 30,
+                      width: 25,
+                      height: 25,
                       tintColor: COLOR.primary,
                     }}
                   />
                 </View>
               </TouchableOpacity>
-              {time && (
-                <TouchableOpacity
-                  style={{marginRight: 5}}
-                  onPress={() => {
-                    setTime(null);
-                  }}>
+            )}
+          </View>
+          {/*Time picker*/}
+          {dateT && (
+            <View>
+              <Text>Time picker</Text>
+              <View
+                style={{
+                  marginBottom: 20,
+                  flexDirection: 'row-reverse',
+                }}>
+                {time && (
+                  <TextInput
+                    keyboardType="numeric"
+                    style={{
+                      borderRadius: 13,
+                      backgroundColor: COLOR.secondary,
+                      color: 'black',
+                      fontSize: 20,
+                      height: 50,
+                      width: 50,
+                      marginLeft: 5,
+                      textAlign: 'center',
+                    }}
+                    value={state.timeEnd}
+                    onChangeText={value => handleChangeText(value, 'timeEnd')}
+                  />
+                )}
+                <TouchableOpacity style={{flex: 1}} onPress={showTimepicker}>
                   <View
                     style={{
                       height: 50,
                       backgroundColor: COLOR.secondary,
                       borderRadius: 13,
-                      width: 50,
-                      justifyContent: 'center',
+                      justifyContent: 'space-between',
+                      flexDirection: 'row',
                       alignItems: 'center',
+                      padding: 10,
                     }}>
+                    <Text style={{fontSize: 20}}>{time}</Text>
                     <Image
-                      source={require('../assets/close.png')}
+                      source={require('../assets/wall-clock.png')}
                       resizeMode="contain"
                       style={{
-                        width: 25,
-                        height: 25,
+                        width: 30,
+                        height: 30,
                         tintColor: COLOR.primary,
                       }}
                     />
                   </View>
                 </TouchableOpacity>
-              )}
+                {time && (
+                  <TouchableOpacity
+                    style={{marginRight: 5}}
+                    onPress={() => {
+                      setTime(null);
+                    }}>
+                    <View
+                      style={{
+                        height: 50,
+                        backgroundColor: COLOR.secondary,
+                        borderRadius: 13,
+                        width: 50,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Image
+                        source={require('../assets/close.png')}
+                        resizeMode="contain"
+                        style={{
+                          width: 25,
+                          height: 25,
+                          tintColor: COLOR.primary,
+                        }}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
+          )}
+
+          {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode={mode}
+              is24Hour={true}
+              display="default"
+              onChange={onChange}
+            />
+          )}
+        </View>
+        {/**/}
+        {time && (
+          <View style={{marginBottom: 20}}>
+            <Text>Repaet</Text>
+            <SelectDropdown
+              renderDropdownIcon={() => {
+                return (
+                  <Image
+                    source={require('../assets/up-arrow.png')}
+                    resizeMode="contain"
+                    style={{
+                      width: 15,
+                      height: 15,
+                      tintColor: COLOR.primary,
+                      position: 'absolute',
+                      left: 10,
+                    }}
+                  />
+                );
+              }}
+              defaultButtonText="No repeat"
+              dropdownStyle={{height: 350}}
+              data={[
+                'No repeat',
+                'Once a day',
+                'Once a day (Mon-Fri)',
+                'Once a week',
+                'Once a month',
+                'Once a year',
+                'Other...',
+              ]}
+              onSelect={(selectedItem, index) => {
+                handleChangeText(selectedItem, 'alartRepeat');
+              }}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                // text represented after item is selected
+                // if data array is an array of objects then return selectedItem.property to render after item is selected
+                return selectedItem;
+              }}
+              rowTextForSelection={(item, index) => {
+                // text represented for each item in dropdown
+                // if data array is an array of objects then return item.property to represent item in dropdown
+                return item;
+              }}
+            />
           </View>
         )}
-
-        {show && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={date}
-            mode={mode}
-            is24Hour={true}
-            display="default"
-            onChange={onChange}
-          />
-        )}
-      </View>
-      {/**/}
-      {time && (
-        <View style={{marginBottom: 20}}>
-          <Text>Repaet</Text>
+        <View>
+          <Text>Add to list</Text>
           <SelectDropdown
             renderDropdownIcon={() => {
               return (
@@ -382,19 +549,11 @@ export default function CreateTask({navigation}) {
                 />
               );
             }}
-            defaultButtonText="No repeat"
-            dropdownStyle={{height: 350}}
-            data={[
-              'No repeat',
-              'Once a day',
-              'Once a day (Mon-Fri)',
-              'Once a week',
-              'Once a month',
-              'Once a year',
-              'Other...',
-            ]}
+            defaultButtonText="Default"
+            dropdownStyle={{height: 250}}
+            data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
             onSelect={(selectedItem, index) => {
-              handleChangeText(selectedItem, 'alartRepeat');
+              handleChangeText(selectedItem, 'typeTask');
             }}
             buttonTextAfterSelection={(selectedItem, index) => {
               // text represented after item is selected
@@ -408,42 +567,6 @@ export default function CreateTask({navigation}) {
             }}
           />
         </View>
-      )}
-      <View>
-        <Text>Add to list</Text>
-        <SelectDropdown
-          renderDropdownIcon={() => {
-            return (
-              <Image
-                source={require('../assets/up-arrow.png')}
-                resizeMode="contain"
-                style={{
-                  width: 15,
-                  height: 15,
-                  tintColor: COLOR.primary,
-                  position: 'absolute',
-                  left: 10,
-                }}
-              />
-            );
-          }}
-          defaultButtonText="Default"
-          dropdownStyle={{height: 250}}
-          data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
-          onSelect={(selectedItem, index) => {
-            handleChangeText(selectedItem, 'typeTask');
-          }}
-          buttonTextAfterSelection={(selectedItem, index) => {
-            // text represented after item is selected
-            // if data array is an array of objects then return selectedItem.property to render after item is selected
-            return selectedItem;
-          }}
-          rowTextForSelection={(item, index) => {
-            // text represented for each item in dropdown
-            // if data array is an array of objects then return item.property to represent item in dropdown
-            return item;
-          }}
-        />
       </View>
     </View>
   );

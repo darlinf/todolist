@@ -125,34 +125,34 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import {NavigationContainer} from '@react-navigation/native';
 
 import HeaderMenu from './component/HeaderMenu';
-//const Stack = createStackNavigator();
+const Stack = createStackNavigator();
 
 import HeaderMenuState from './context/HeaderMenu/HeaderMenuState';
 
-const Drawer = createDrawerNavigator();
+//const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
     <HeaderMenuState>
       <NavigationContainer>
         <StatusBar backgroundColor="#3a3eb4"></StatusBar>
-        <HeaderMenu />
+        {/*<HeaderMenu />
         <Drawer.Navigator initialRouteName="Home">
           <Drawer.Screen name="Home" component={Home} />
           <Drawer.Screen name="CreateTask" component={CreateTask} />
           <Drawer.Screen name="Contact" component={Contact} />
           <Drawer.Screen name="EditTask" component={EditTask} />
-        </Drawer.Navigator>
-        {/*
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-        initialRouteName={"Home"}
-      >
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="CreateTask" component={CreateTask} />
-      </Stack.Navigator>*/}
+        </Drawer.Navigator>*/}
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+          initialRouteName={'Home'}>
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="CreateTask" component={CreateTask} />
+          <Stack.Screen name="Contact" component={Contact} />
+          <Stack.Screen name="EditTask" component={EditTask} />
+        </Stack.Navigator>
       </NavigationContainer>
     </HeaderMenuState>
   );
