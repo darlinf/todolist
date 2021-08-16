@@ -6,6 +6,7 @@ This is a life-long todo list application with the addition that allows you to a
 
 ## Technology used
   
+  * React native
   * Datetimepicker
   * Drawer
   * React navigation
