@@ -4,6 +4,7 @@ const db = SQLite.openDatabase('test.db', '1.0', '', 1);
 
 const createTask = item => {
   db.transaction(function (txn) {
+    // txn.executeSql('DROP TABLE IF EXISTS Tasks', []);
     txn.executeSql(
       'CREATE TABLE IF NOT EXISTS Tasks(task_id INTEGER PRIMARY KEY NOT NULL, task VARCHAR(300), taskState VARCHAR(30),timeStart VARCHAR(30),timeEnd VARCHAR(30),alartRepeat VARCHAR(30),typeTask VARCHAR(30),date VARCHAR(100))',
       [],
@@ -26,6 +27,8 @@ const createTask = item => {
 
 const getTasks = async tasksSend => {
   db.transaction(function (txn) {
+    //txn.executeSql('DROP TABLE IF EXISTS Tasks', []);
+
     txn.executeSql('SELECT * FROM `Tasks`', [], function (tx, res) {
       let elems = [];
       for (let i = 0; i < res.rows.length; ++i) {
@@ -54,7 +57,7 @@ const getTaskById = S_Id => {
 const deleteTask = S_Id => {
   db.transaction(tx => {
     tx.executeSql(
-      'DELETE FROM users where user_id=?',
+      'DELETE FROM Tasks where task_id=?',
       [S_Id],
       (tx, results) => {
         console.log('Results', results.rowsAffected);

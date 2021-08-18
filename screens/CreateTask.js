@@ -31,16 +31,19 @@ export default function CreateTask({navigation}) {
     isOnScreenNavbar = false;
   }
 
+  const inputText = useRef();
+
   const headerMenuContext = useContext(HeaderMenuContext);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       console.log('ddddfgfff2');
       headerMenuContext.createNotePage();
+      inputText.current.focus();
     });
     return unsubscribe;
   }, [navigation]);
 
-  const [date, setDate] = useState(new Date(1598051730000));
+  const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
 
@@ -62,14 +65,15 @@ export default function CreateTask({navigation}) {
     const currentDate = selectedDate || date;
     setShow(Platform.OS === 'ios');
     setDate(currentDate);
-    console.log(mode);
     if (mode === 'time') {
-      setTime(date.toString().slice(16, 24));
-      handleChangeText(time, 'timeStart');
+      const timeTo = currentDate.toString().slice(16, 24);
+      setTime(timeTo);
+      handleChangeText(timeTo, 'timeStart');
     }
     if (mode === 'date') {
-      setDateT(date.toString().slice(0, 16));
-      handleChangeText(dateT, 'date');
+      const timeTo = currentDate.toString().slice(0, 16);
+      setDateT(timeTo);
+      handleChangeText(timeTo, 'date');
     }
   };
 
@@ -79,6 +83,7 @@ export default function CreateTask({navigation}) {
   };
 
   const showDatepicker = () => {
+    inputText.current.blur();
     showMode('date');
   };
 
@@ -101,11 +106,11 @@ export default function CreateTask({navigation}) {
     setState({...state, [name]: value});
   };
   const saveNewTask = () => {
-    //handleChangeText('time', 'timeStart');
-    // handleChangeText('timeEnd', 'timeEnd');
+    handleChangeText('time', 'timeStart');
+    handleChangeText('timeEnd', 'timeEnd');
     console.log({...state});
     db.createTask(state);
-    db.getTasks();
+    setState(initalState);
   };
 
   const menu = useRef();
@@ -317,6 +322,7 @@ export default function CreateTask({navigation}) {
         <View>
           <Text>What is to be done?</Text>
           <TextInput
+            ref={inputText}
             style={{
               borderRadius: 13,
               backgroundColor: COLOR.secondary,
@@ -325,6 +331,7 @@ export default function CreateTask({navigation}) {
               height: 50,
               marginBottom: 20,
             }}
+            value={state.task}
             onChangeText={value => handleChangeText(value, 'task')}
           />
         </View>

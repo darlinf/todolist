@@ -28,7 +28,30 @@ let Tasks = {
   alartRepeat: '',
 };
 
+const getCurrentDate = () => {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = String(today.getFullYear());
+  return {months: mm, day: dd, year: yyyy};
+};
+
 const timeConvert = n => {
+  var num = n;
+  var hours = num / 60;
+  var rhours = Math.floor(hours);
+  var minutes = (hours - rhours) * 60;
+  var rminutes = '' + Math.round(minutes);
+  if (rhours !== 0) {
+    return (
+      rhours + ':' + (rminutes.length == 1 ? '0' + rminutes : rminutes) + ' hrs'
+    );
+  } else {
+    return rminutes + ' min';
+  }
+};
+
+const timeConvertTotalSum = n => {
   var num = n;
   var hours = num / 60;
   var rhours = Math.floor(hours);
@@ -46,6 +69,27 @@ const timeConvert = n => {
   }
 };
 
+const isCurrentTask = elem => {
+  let timeToStart = parseFloat(elem.timeStart.slice(0, 5).replace(':', '.'));
+  let timeToFinish = parseFloat(
+    sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd).replace(':', '.'),
+  );
+  let d = new Date(); // for now
+  let currentTime = parseFloat(d.getHours() + '.' + d.getMinutes());
+  return currentTime >= timeToStart && currentTime <= timeToFinish;
+};
+
+const sumMinutes = (timeInHour, minutesToSum) => {
+  var timeParts = timeInHour.split(':');
+  var hoursInMinutes = Number(timeParts[0]) * 60 + Number(timeParts[1]);
+  var totalTimeInMin = parseInt(hoursInMinutes) + parseInt(minutesToSum);
+  var minutesConvert = (totalTimeInMin % 60) + '';
+  var minutesConvertResurt =
+    minutesConvert.length == 1 ? '0' + minutesConvert : minutesConvert;
+  var resurt = Math.floor(totalTimeInMin / 60) + ':' + minutesConvertResurt;
+  return resurt;
+};
+
 export default function Home({navigation}) {
   let deviceHeight = Dimensions.get('screen').height;
   let windowHeight = Dimensions.get('window').height;
@@ -59,7 +103,6 @@ export default function Home({navigation}) {
   const [tasks, setTasks] = React.useState([]);
   const headerMenuContext = useContext(HeaderMenuContext);
 
-  console.log(headerMenuContext.taskType);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       headerMenuContext.homePage();
@@ -68,6 +111,8 @@ export default function Home({navigation}) {
         setTasks(elems);
         setLoading(false);
         headerMenuContext.filterTaskByType('Default');
+
+        filterItemByDate(elems);
       });
     });
     return unsubscribe;
@@ -87,6 +132,7 @@ export default function Home({navigation}) {
     11: 'November',
     12: 'December',
   };
+
   const today = new Date();
   const currentDay = parseInt(String(today.getDate()).padStart(2, '0'));
   const currentMonths = months[
@@ -98,8 +144,29 @@ export default function Home({navigation}) {
   const showMenu = () => menu.current.show();
   const [darkMode, setDarkMode] = React.useState(true);
 
-  const task = () => {
+  const currentDate = getCurrentDate();
+  const [todayTask, setTodayTask] = React.useState([]);
+
+  const filterItemByDate = items => {
+    setTodayTask(
+      items.filter(item => {
+        let day = item.date.slice(8, 10);
+        let year = item.date.slice(11, 15);
+        let month = item.date.slice(4, 7);
+        return (
+          currentDate.day == day &&
+          months[parseInt(currentDate.months)].slice(0, 3) == month &&
+          currentDate.year == year
+        );
+      }),
+    );
+    console.log(todayTask, 'ss');
+  };
+
+  const task = tasks => {
     return tasks.map(elem => {
+      if (isCurrentTask(elem)) elem.taskState = 'current';
+
       if (elem.taskState === 'done')
         return (
           <View
@@ -139,6 +206,7 @@ export default function Home({navigation}) {
                         });
                       },
                       {...elem, taskState: 'still'},
+                      //db.deleteTask(elem.task_id);
                     );
                   }}>
                   <View
@@ -175,7 +243,9 @@ export default function Home({navigation}) {
               <View>
                 <Text style={{color: 'black'}}>{elem.task}</Text>
                 <Text style={{color: '#C6C6C1'}}>
-                  10:30 - 11:00, {elem.typeTask}
+                  {elem.timeStart.slice(0, 5)} -{' '}
+                  {sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd)},{' '}
+                  {elem.typeTask}
                 </Text>
               </View>
             </View>
@@ -234,7 +304,9 @@ export default function Home({navigation}) {
               <View>
                 <Text style={{color: 'white'}}>{elem.task}</Text>
                 <Text style={{color: '#E3E3E3', opacity: 0.8}}>
-                  10:30 - 11:00, {elem.typeTask}
+                  {elem.timeStart.slice(0, 5)} -{' '}
+                  {sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd)},{' '}
+                  {elem.typeTask}
                 </Text>
               </View>
             </View>
@@ -315,7 +387,9 @@ export default function Home({navigation}) {
                     {elem.task}
                   </Text>
                   <Text style={{color: '#C6C6C1'}}>
-                    10:30 - 11:00, {elem.typeTask}
+                    {elem.timeStart.slice(0, 5)} -{' '}
+                    {sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd)},{' '}
+                    {elem.typeTask}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -325,7 +399,7 @@ export default function Home({navigation}) {
     });
   };
 
-  const filterTask = () => {
+  const filterTask = tasks => {
     return tasks.map(elem => {
       if (headerMenuContext.taskType === elem.typeTask) {
         if (elem.taskState === 'done')
@@ -403,7 +477,9 @@ export default function Home({navigation}) {
                 <View>
                   <Text style={{color: 'black'}}>{elem.task}</Text>
                   <Text style={{color: '#C6C6C1'}}>
-                    10:30 - 11:00, {elem.typeTask}
+                    {elem.timeStart.slice(0, 5)} -{' '}
+                    {sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd)},{' '}
+                    {elem.typeTask}
                   </Text>
                 </View>
               </View>
@@ -462,7 +538,9 @@ export default function Home({navigation}) {
                 <View>
                   <Text style={{color: 'white'}}>{elem.task}</Text>
                   <Text style={{color: '#E3E3E3', opacity: 0.8}}>
-                    10:30 - 11:00, {elem.typeTask}
+                    {elem.timeStart.slice(0, 5)} -{' '}
+                    {sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd)},{' '}
+                    {elem.typeTask}
                   </Text>
                 </View>
               </View>
@@ -543,7 +621,9 @@ export default function Home({navigation}) {
                       {elem.task}
                     </Text>
                     <Text style={{color: '#C6C6C1'}}>
-                      10:30 - 11:00, {elem.typeTask}
+                      {elem.timeStart.slice(0, 5)} -{' '}
+                      {sumMinutes(elem.timeStart.slice(0, 5), elem.timeEnd)},{' '}
+                      {elem.typeTask}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -578,13 +658,17 @@ export default function Home({navigation}) {
           </View>
           <View style={{justifyContent: 'center', height: 70}}>
             <Text style={{color: '#535353'}}>
-              {/*tasks.map(elem => {
-                if (!isNaN(parseInt(elem.timeEnd))) {
-                  console.log(elem.timeEnd);
-                  return parseInt(elem.timeEnd);
-                }
-              }){headerMenuContext.taskType}*/}
-              8 hours a day
+              {/*timeConvertTotalSum(
+                tasks
+                  .map(elem => {
+                    if (!isNaN(parseInt(elem.timeEnd))) {
+                      console.log(elem.timeEnd);
+                      return parseInt(elem.timeEnd);
+                    }
+                  })
+                  .reduce((total, sum) => total + sum),
+                )*/}{' '}
+              a day
             </Text>
           </View>
         </View>
@@ -598,8 +682,8 @@ export default function Home({navigation}) {
           )}
           <ScrollView
             style={{height: isOnScreenNavbar ? 400 : 600, width: 285}}>
-            {headerMenuContext.taskType === 'Default' && task()}
-            {headerMenuContext.taskType !== 'Default' && filterTask()}
+            {headerMenuContext.taskType === 'Default' && task(todayTask)}
+            {headerMenuContext.taskType !== 'Default' && filterTask(todayTask)}
 
             {/*{task('current')}
                 {task('still')}
@@ -733,7 +817,13 @@ export default function Home({navigation}) {
                     Menu item 3
                   </MenuItem>
                   <MenuDivider />
-                  <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
+                  <MenuItem
+                    onPress={() => {
+                      hideMenu();
+                      navigation.navigate('Contact');
+                    }}>
+                    Menu item 4
+                  </MenuItem>
                 </Menu>
               </View>
 
@@ -770,7 +860,7 @@ export default function Home({navigation}) {
                   dropdownStyle={{height: 250, borderRadius: 5}}
                   data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
                   onSelect={(selectedItem, index) => {
-                    console.log(selectedItem, index);
+                    //console.log(selectedItem, index);
                     headerMenuContext.filterTaskByType(selectedItem);
                   }}
                   buttonTextAfterSelection={(selectedItem, index) => {
@@ -934,4 +1024,5 @@ style={{
 </View> */
 /*react-native run-android
 npx react-native run-android
+
 */

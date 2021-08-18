@@ -23,6 +23,26 @@ import SelectDropdown from 'react-native-select-dropdown';
 let isOnScreenNavbar = true;
 
 export default function EditTask({route, navigation}) {
+  const [date, setDate] = useState(new Date(1598051730000));
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+
+  const [showPopUp, setShowPopUp] = useState(false);
+
+  const [dateT, setDateT] = useState(null);
+  const [time, setTime] = useState(null);
+
+  const initalState = {
+    task: '',
+    taskState: '',
+    timeStart: '',
+    timeEnd: '',
+    alartRepeat: '',
+    typeTask: '',
+    date: '',
+    task_id: '',
+  };
+
   let deviceHeight = Dimensions.get('screen').height;
   let windowHeight = Dimensions.get('window').height;
   let bottomNavBarHeight = deviceHeight - windowHeight;
@@ -36,18 +56,20 @@ export default function EditTask({route, navigation}) {
       headerMenuContext.editNotePage();
       console.log('dddddddddddddddd');
       console.log(route.params);
+      initalState.task = route.params.task;
+      initalState.taskState = route.params.taskState;
+      initalState.timeStart = route.params.timeStart;
+      initalState.timeEnd = route.params.timeEnd;
+      initalState.alartRepeat = route.params.alartRepeat;
+      initalState.typeTask = route.params.typeTask;
+      initalState.date = route.params.date;
+      initalState.task_id = route.params.task_id;
+
+      setDateT(route.params.date);
+      setTime(route.params.timeStart);
     });
     return unsubscribe;
   }, [navigation]);
-
-  const [date, setDate] = useState(new Date(1598051730000));
-  const [mode, setMode] = useState('date');
-  const [show, setShow] = useState(false);
-
-  const [showPopUp, setShowPopUp] = useState(false);
-
-  const [dateT, setDateT] = useState(null);
-  const [time, setTime] = useState(null);
 
   const popUpEnable = () => {
     setShowPopUp(true);
@@ -86,26 +108,15 @@ export default function EditTask({route, navigation}) {
     showMode('time');
   };
 
-  const initalState = {
-    task: '',
-    taskState: '',
-    timeStart: '',
-    timeEnd: '',
-    alartRepeat: '',
-    typeTask: '',
-    date: '',
-  };
-
   const [state, setState] = useState(initalState);
   const handleChangeText = (value, name) => {
     setState({...state, [name]: value});
   };
   const saveNewTask = () => {
-    //handleChangeText('time', 'timeStart');
-    // handleChangeText('timeEnd', 'timeEnd');
-    console.log({...state});
-    db.createTask(state);
-    db.getTasks();
+    db.editTask(resurt => {
+      console.log(resurt);
+    }, state);
+    navigation.navigate('Home');
   };
 
   const menu = useRef();
@@ -164,18 +175,6 @@ export default function EditTask({route, navigation}) {
                 </Menu>
               </View>
 
-              {/*<Picker
-          selectedValue={selectedLanguage}
-          onValueChange={(itemValue, itemIndex) =>
-            setSelectedLanguage(itemValue)
-          }>
-          <Picker.Item label="Java" value="java" />
-          <Picker.Item label="JavaScript" value="js" />
-        </Picker>
-
-            <Text style={{color: 'white', textAlign: 'center', fontSize: 16}}>
-              5 May
-            </Text>*/}
               <Text style={{color: 'white', fontSize: 24, top: -7}}>
                 Edit task
               </Text>
@@ -300,7 +299,6 @@ export default function EditTask({route, navigation}) {
             zIndex: 1,
           }}
           onPress={() => {
-            popUpEnable();
             saveNewTask();
           }}>
           <Image
@@ -415,6 +413,7 @@ export default function EditTask({route, navigation}) {
                       marginLeft: 5,
                       textAlign: 'center',
                     }}
+                    value={state.timeEnd}
                     onChangeText={value => handleChangeText(value, 'timeEnd')}
                   />
                 )}
@@ -503,7 +502,7 @@ export default function EditTask({route, navigation}) {
                   />
                 );
               }}
-              defaultButtonText="No repeat"
+              defaultButtonText={state.alartRepeat}
               dropdownStyle={{height: 350}}
               data={[
                 'No repeat',
@@ -548,7 +547,7 @@ export default function EditTask({route, navigation}) {
                 />
               );
             }}
-            defaultButtonText="Default"
+            defaultButtonText={state.typeTask}
             dropdownStyle={{height: 250}}
             data={['Default', 'Personal', 'Shopping', 'Wishlist', 'Word']}
             onSelect={(selectedItem, index) => {
